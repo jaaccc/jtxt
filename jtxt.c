@@ -7,19 +7,19 @@
 
 struct termios original;
 
-void kill(const char *s) {
+void die(const char *s) {
     perror(s);
     exit(1);
 }
 
 void disableRaw(void) {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original) == -1)
-        kill("scsetattr");
+        die("tcsetattr");
 }
 
 void enableRaw(void) {
     if (tcgetattr(STDIN_FILENO, &original) == -1)
-        kill("tcgetattr");
+        die("tcgetattr");
     atexit(disableRaw);
 
     struct termios raw = original;
@@ -33,7 +33,7 @@ void enableRaw(void) {
     raw.c_cc[VTIME] = 1;
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
-        kill("tcsetattr");
+        die("tcsetattr");
 }
 
 int main(void) {
@@ -43,7 +43,7 @@ int main(void) {
         char c = '\0';
 
         if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
-            kill("read");
+            die("read");
         if (iscntrl(c))
             printf("%d\r\n", c);
         else
